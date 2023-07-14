@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const db = require('../data')
+const db = require('../Data/config')
 const dotenv = require('dotenv')
 
-dotenv.config({ path: '../.env' })
+dotenv.config({ path: '../config/.env' })
 
 exports.register = (req, res) => {
     const { username, email, password } = req.body
