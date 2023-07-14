@@ -1,6 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser');
-const port = 3000
+const port = 5000
 
 const app = express()
 
@@ -16,8 +16,8 @@ app.get('/', (req, res) =>{
 
 
 
-app.all('*',authenticateToken, (req,res) => {
+app.all('*', (req,res) => {
     res.status(404).send('Page not Found')
   })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`App listening on port ${port}!`))

@@ -18,8 +18,8 @@ CREATE TABLE Friends(
   user1_id INT NOT NULL,
   user2_id INT NOT NULL,
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user1_id) REFERENCES users(id),
-  FOREIGN KEY (user2_id) REFERENCES users(id)
+  FOREIGN KEY (user1_id) REFERENCES Users(id),
+  FOREIGN KEY (user2_id) REFERENCES Users(id)
 );
 -- Create the table for friend requests
 CREATE TABLE Friend_Requests (
@@ -27,17 +27,17 @@ CREATE TABLE Friend_Requests (
   sender_id INT NOT NULL,
   recipient_id INT NOT NULL,
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (sender_id) REFERENCES users(id),
-  FOREIGN KEY (recipient_id) REFERENCES users(id)
-)
+  FOREIGN KEY (sender_id) REFERENCES Users(id),
+  FOREIGN KEY (recipient_id) REFERENCES Users(id)
+);
 
 -- Create the table for private conversations
 CREATE TABLE Private_Conversations (
   id INT PRIMARY KEY AUTO_INCREMENT,
   user1_id INT NOT NULL,
   user2_id INT NOT NULL,
-  FOREIGN KEY (user1_id) REFERENCES users(id),
-  FOREIGN KEY (user2_id) REFERENCES users(id)
+  FOREIGN KEY (user1_id) REFERENCES Users(id),
+  FOREIGN KEY (user2_id) REFERENCES Users(id)
 );
 
 -- Create the table for private messages
@@ -48,7 +48,7 @@ CREATE TABLE Private_Messages (
   recipient_id INT NOT NULL,
   message VARCHAR(1000) NOT NULL,
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (conversation_id) REFERENCES private_conversations(id),
-  FOREIGN KEY (sender_id) REFERENCES users(id),
-  FOREIGN KEY (recipient_id) REFERENCES users(id)
+  FOREIGN KEY (conversation_id) REFERENCES Private_Conversations(id),
+  FOREIGN KEY (sender_id) REFERENCES Users(id),
+  FOREIGN KEY (recipient_id) REFERENCES Users(id)
 );

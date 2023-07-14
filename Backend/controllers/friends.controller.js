@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const db = require('../data')
+const db = require('../Data/config')
 const validateType = require('../utils/typevalidator')
 
 exports.request = (req, res) => {
