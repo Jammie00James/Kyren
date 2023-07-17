@@ -1,14 +1,20 @@
 const express = require('express')
 const bodyParser = require('body-parser');
-const port = 5000
+const cookieParser = require('cookie-parser');
+const dotenv = require('dotenv')
+
+
+dotenv.config()
+const port = 3000
 
 const app = express()
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use('/auth', require('./routes/auth.route'));
 app.use('/friends', require('./routes/friends.route'));
-app.use('/auth', require('./routes/auth.route'));
-app.use('/auth', require('./routes/auth.route'));
+//app.use('/home', require('./routes/home.route'));
+//app.use('/chat', require('./routes/chat.route'));
 
 app.get('/', (req, res) =>{
   res.status(200).send("Hello")

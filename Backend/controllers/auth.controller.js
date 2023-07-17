@@ -48,7 +48,7 @@ exports.login = (req, res) => {
                     res.status(401).json({ error: 'Invalid email or password' });
                 } else {
                     // Create a JWT token
-                    const token = jwt.sign({ email: user.email }, process.env.SECRET_KEY);
+                    const token = jwt.sign({ email: user.email }, 'balablurepublic4');
 
                     // Send the token back to the client
                     res.cookie('jwt', token, { httpOnly: true, secure: true }).json({message:"user logined"});

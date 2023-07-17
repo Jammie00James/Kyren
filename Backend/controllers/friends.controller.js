@@ -1,3 +1,4 @@
+const e = require('express');
 const jwt = require('jsonwebtoken')
 const db = require('../Data/config')
 const validateType = require('../utils/typevalidator')
@@ -7,7 +8,7 @@ exports.request = (req, res) => {
     let targ = req.params.id
     let x = validateType(targ,"string")
     if(x){return res.status(401).json({error:"Invalid Parameter"})}
-
+    if(user.id == targ){return res.status(401).json({error:"Cannot send self Request"})}
     let query = 'SELECT * FROM Users WHERE id = ?';
 
     db.query(query, targ,(err, result) => {
@@ -15,74 +16,160 @@ exports.request = (req, res) => {
             console.log('Error executing query:', err);
             return res.json({ error: "An error occured" })
         }
-        if (result.length > 0) {
+        if (result.length < 1) {
             return res.json({ error: "User not found" })
         } else {
-            const request = { sender_id:user.id,recipent_id:targ};
+            const request = { sender_id:user.id,recipient_id:targ};
 
-
-            query = 'SELECT * FROM Friend_Requests WHERE sender_id = ? AND recipent_id = ?'
-            db.query(query, [request.sender_id, request.recipent_id], ( err, results) => {
-                if (err) { 
-                    console.log(err);
-                    return res.status(401).json({ error: "An error occured" }) 
+            query = 'SELECT * FROM Friends WHERE (user1_id = ? OR user1_id = ?) AND (user2_id = ? OR user2_id = ?)'
+            db.query(query,[request.sender_id,request.recipient_id,request.sender_id,request.recipient_id],(err,result) =>{
+                if (err) {
+                    console.log('Error executing query:', err);
+                    return res.json({ error: "An error occured" })
                 }
-                if(results.length > 0){
-                    return res.status(200).json({ message: "Request already sent" })
+                if (result.length > 0) {
+                    return res.json({ error: "Users Are already friends" })
+                } else {
+                    query = 'SELECT * FROM Friend_Requests WHERE (sender_id = ? OR sender_id = ?) AND (recipient_id = ? OR recipient_id = ?)'
+                    db.query(query, [request.sender_id, request.recipient_id, request.sender_id,request.recipient_id], ( err, results) => {
+                        if (err) { 
+                            console.log(err);
+                            return res.status(401).json({ error: "An error occured" }) 
+                        }
+                        if(results.length > 0){
+                            return res.status(200).json({ message: "Request already sent" })
+                        }
+
+
+                        query = 'INSERT INTO Friend_Requests SET ?'
+                        db.query(query, request, (err) => {
+                            if (err) { 
+                                console.log(err);
+                                return res.status(401).json({ error: "An error occured" }) 
+                            }
+                            return res.status(200).json({ message: "Request sent" })
+                        });
+                    });
                 }
-
-
-                query = 'INSERT INTO Friend_Requests SET ?'
-                db.query(query, request, (err) => {
-                    if (err) { 
-                        console.log(err);
-                        return res.status(401).json({ error: "An error occured" }) 
-                    }
-                    return res.status(200).json({ message: "Request sent" })
-                });
-            });
+            })
         }
     });
 }
 
 exports.accept = (req,res) => {
-
-}
-
-exports.reject = (req, res) => {
-
-}
-
-exports.search = (req, res) => {
-    const { email, password } = req.body
-
-    let query = 'SELECT * FROM Users WHERE email = ?';
-    db.query(query, email, async (err, result) => {
-        if (err) {
-            return console.error('Error executing query:', err);
+    const user = req.user;
+    let targ = req.params.id
+    let x = validateType(targ,"string")
+    if(x){return res.status(401).json({error:"Invalid Parameter"})}
+    if(user.id == targ){return res.status(401).json({error:"Cannot accept self friend request"})}
+    const request = { user1_id:targ,user2_id:user.id};
+    let query = 'SELECT * FROM Friend_Requests WHERE sender_id = ? AND recipient_id = ?';
+    db.query(query, [request.user1_id, request.user2_id], ( err, results) => {
+        if (err) { 
+            console.log(err);
+            return res.status(401).json({ error: "An error occured" }) 
         }
-        if (result.length < 1) {
-            return res.json({ message: "User not found" })
-        } else {
-            let user = result[0]
-            bcrypt.compare(password, user.password, (err, result) => {
-                if (err || !result) {
-                    res.status(401).json({ error: 'Invalid email or password' });
-                } else {
-                    // Create a JWT token
-                    const token = jwt.sign({ email: user.email }, process.env.SECRET_KEY);
-
-                    // Send the token back to the client
-                    res.cookie('jwt', token, { httpOnly: true, secure: true }).json({message:"user logined"});
+        if(results.length < 1){
+            return res.status(200).json({ message: "No request Found" })
+        }
+        query = 'INSERT INTO Friends SET ?'
+        db.query(query, request, (err) => {
+            if (err) { 
+                console.log(err);
+                return res.status(401).json({ error: "An error occured" }) 
+            }
+            query = 'DELETE FROM Friend_Requests WHERE id = ?'
+            db.query(query, results[0].id, (err) => {
+                if (err) { 
+                    console.log(err);
+                    return res.status(401).json({ error: "An error occured" }) 
                 }
+                return res.status(200).json({ message: "Request accepted" })
             });
+        });
+    });
+
+}
+
+exports.decline = (req, res) => {
+    const user = req.user;
+    let targ = req.params.id
+    let x = validateType(targ,"string")
+    if(x){return res.status(401).json({error:"Invalid Parameter"})}
+    if(user.id == targ){return res.status(401).json({error:"Cannot accept self friend request"})}
+    const request = { user1_id:targ,user2_id:user.id};
+    let query = 'SELECT * FROM Friend_Requests WHERE sender_id = ? AND recipient_id = ?';
+    db.query(query, [request.user1_id, request.user2_id], ( err, results) => {
+        if (err) { 
+            console.log(err);
+            return res.status(401).json({ error: "An error occured" }) 
         }
+        if(results.length < 1){
+            return res.status(200).json({ message: "No request Found" })
+        }
+        query = 'DELETE FROM Friend_Requests WHERE id = ?'
+        db.query(query, results[0].id, (err) => {
+            if (err) { 
+                console.log(err);
+                return res.status(401).json({ error: "An error occured" }) 
+            }
+            return res.status(200).json({ message: "Request declined" })
+        }); 
     });
 }
 
+exports.all = (req, res) => {
+    const user = req.user;
+    const { search } = req.query
+    if(search){
+        let query = 'SELECT * FROM Friends WHERE (user1_id = ? AND user2_id LIKE ?) OR (user1_id LIKE ? AND user2_id = ?)';
+        db.query(query, [user.id, `${search}%`,`${search}%`, user.id], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return;
+            }
+            let relations = results
+            let friedsid = []
+            relations.forEach(element => {
+            if(element.user1_id = user.id){
+                friedsid.push(element.user2_id)
+            }else{
+                friedsid.push(element.user1_id)
+            }
+            console.log(friedsid)
+            });
+        });       
+    }else{
+        let query = 'SELECT * FROM Friends WHERE user1_id = ? OR user2_id = ?';
+        db.query(query, [user.id, user.id], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return;
+            }
+            let relations = results
+            let friedsid = []
+            relations.forEach(element => {
+            if(element.user1_id == user.id){
+                friedsid.push(element.user2_id)
+            }else{
+                friedsid.push(element.user1_id)
+            }
+            });
+            console.log(friedsid)
+            query = `SELECT id, username, email, status FROM Users WHERE id IN (?)`;
+            db.query(query,[friedsid],(err,res) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return;
+                }
+                return res.status(200).json(res);
+            })
+
+        }); 
+    }
+}
 
 exports.remove = (req, res) => {
-    res.clearCookie('jwt');
-    res.json({ success: true, message: 'Logout successful' });
+    
   };
   

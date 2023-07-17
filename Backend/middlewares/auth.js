@@ -1,7 +1,7 @@
 const db = require('../Data/config')
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
-const cookieParser = require('cookie-parser');
+
 
 dotenv.config({ path: '../config/.env' })
 
@@ -10,7 +10,7 @@ const authenticateUser = (req, res, next) => {
 
   if (token) {
     // Verify the token
-    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    jwt.verify(token, 'balablurepublic4', (err, decoded) => {
       if (err) {
         return res.status(401).json({ error: 'Invalid token' });
       } else {
