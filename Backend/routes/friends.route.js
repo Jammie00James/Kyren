@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.post('/request/:id',authenticateUser,friendsController.request)
 router.post('/accept/:id',authenticateUser,friendsController.accept)
-router.post('/decline',authenticateUser,friendsController.decline)
+router.post('/decline/:id',authenticateUser,friendsController.decline)
 router.get("/all",authenticateUser,friendsController.all)
-router.post('/remove',authenticateUser,friendsController.remove)
+router.post('/remove/:id',authenticateUser,friendsController.remove)
 
 
 

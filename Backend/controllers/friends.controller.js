@@ -121,55 +121,72 @@ exports.decline = (req, res) => {
 exports.all = (req, res) => {
     const user = req.user;
     const { search } = req.query
-    if(search){
-        let query = 'SELECT * FROM Friends WHERE (user1_id = ? AND user2_id LIKE ?) OR (user1_id LIKE ? AND user2_id = ?)';
-        db.query(query, [user.id, `${search}%`,`${search}%`, user.id], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return;
-            }
-            let relations = results
-            let friedsid = []
-            relations.forEach(element => {
-            if(element.user1_id = user.id){
-                friedsid.push(element.user2_id)
-            }else{
-                friedsid.push(element.user1_id)
-            }
-            console.log(friedsid)
-            });
-        });       
-    }else{
-        let query = 'SELECT * FROM Friends WHERE user1_id = ? OR user2_id = ?';
-        db.query(query, [user.id, user.id], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return;
-            }
-            let relations = results
-            let friedsid = []
-            relations.forEach(element => {
-            if(element.user1_id == user.id){
-                friedsid.push(element.user2_id)
-            }else{
-                friedsid.push(element.user1_id)
-            }
-            });
-            console.log(friedsid)
+    let query = 'SELECT * FROM Friends WHERE user1_id = ? OR user2_id = ?';
+    db.query(query, [user.id, user.id], (err, results) => {
+        if (err) {
+            console.error('Error executing query:', err);
+            return;
+        }
+        if(results.length < 1){
+            return res.status(200).json({});
+        }
+        let relations = results
+        let friedsid = []
+        relations.forEach(element => {
+        if(element.user1_id == user.id){
+            friedsid.push(element.user2_id)
+        }else{
+            friedsid.push(element.user1_id)
+        }
+        });
+        if(!search){
             query = `SELECT id, username, email, status FROM Users WHERE id IN (?)`;
-            db.query(query,[friedsid],(err,res) => {
+            db.query(query,[friedsid],(err,result) => {
                 if (err) {
                     console.error('Error executing query:', err);
                     return;
                 }
-                return res.status(200).json(res);
+                return res.status(200).json(result);
             })
-
-        }); 
-    }
+        }else{
+            let x = validateType(search,"string")
+            if(x){return res.status(401).json({error:"Invalid Parameter"})}
+            query = `SELECT id, username, email, status FROM Users WHERE username LIKE ? AND id IN (?)`;
+            db.query(query,[`${search}%`,friedsid],(err,result) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return;
+                }
+                return res.status(200).json(result);
+            });
+        }
+    });
 }
 
 exports.remove = (req, res) => {
-    
+    const user = req.user;
+    let targ = req.params.id
+    let x = validateType(targ,"string")
+    if(x){return res.status(401).json({error:"Invalid Parameter"})}    
+    const request = { user1_id:user.id,user2_id:targ};
+    let query = 'SELECT * FROM Friends WHERE (user1_id = ? OR user1_id = ?) AND (user2_id = ? OR user2_id = ?)';
+    db.query(query, [request.user1_id,request.user2_id,request.user1_id,request.user2_id], ( err, results) => {
+        if (err) { 
+            console.log(err);
+            return res.status(401).json({ error: "An error occured" }) 
+        }
+        if(results.length < 1){
+            return res.status(200).json({ message: "Friend not Found" })
+        }
+        query = 'DELETE FROM Friends WHERE id = ?'
+        db.query(query, results[0].id, (err) => {
+            if (err) { 
+                console.log(err);
+                return res.status(401).json({ error: "An error occured" }) 
+            }
+            return res.status(200).json({ message: "Friend Removed" })
+        }); 
+    });
+
   };
   
