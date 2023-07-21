@@ -1,5 +1,3 @@
-const e = require('express');
-const jwt = require('jsonwebtoken')
 const db = require('../Data/config')
 const validateType = require('../utils/typevalidator')
 

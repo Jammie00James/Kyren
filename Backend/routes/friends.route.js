@@ -1,6 +1,6 @@
 const express = require('express')
 const friendsController = require('../controllers/friends.controller')
-const authenticateUser = require('../middlewares/auth')
+const {authenticateUser} = require('../middlewares/auth')
 
 const router = express.Router();
 
