@@ -41,5 +41,5 @@ function createWebsocket(io) {
     });
   }
   
-  module.exports = createWebsocket();
+  module.exports = createWebsocket;
   

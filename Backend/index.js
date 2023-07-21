@@ -17,7 +17,6 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 
-
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use('/auth', require('./routes/auth.route'));
@@ -32,7 +31,7 @@ app.get('/', (req, res) =>{
 })
 
 console.log("001")
-createWebsocket(io);
+createWebsocket(server);
 console.log("005")
 
 app.all('*', (req,res) => {
