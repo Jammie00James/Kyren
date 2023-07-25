@@ -51,7 +51,7 @@ exports.login = (req, res) => {
                     const token = jwt.sign({ email: user.email }, 'balablurepublic4');
 
                     // Send the token back to the client
-                    res.cookie('jwt', token, { httpOnly: true, secure: true }).json({message:"user logined"});
+                    res.cookie('jwt', token, { httpOnly: true, secure: true }).json({message:"success"});
                 }
             });
         }

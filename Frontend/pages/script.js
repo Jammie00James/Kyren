@@ -1,11 +1,11 @@
 document.getElementById('loginForm').addEventListener('submit', function (event) {
     event.preventDefault();
   
-    const username = document.getElementById('username').value;
+    const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
   
     // Replace 'your-api-endpoint' with the actual API endpoint for user authentication.
-    const apiUrl = 'https://example.com/api/login';
+    const apiUrl = 'http://localhost:3000/auth/login';
   
     // Make a POST request to the API with the username and password.
     fetch(apiUrl, {
@@ -13,11 +13,11 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ email, password })
     })
     .then(response => response.json())
     .then(data => {
-      if (data.success) {
+      if (data.message === "success") {
         // Redirect to a success page when login is successful.
         window.location.href = 'success.html';
       } else {

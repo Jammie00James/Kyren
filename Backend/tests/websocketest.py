@@ -3,7 +3,7 @@ import threading
 import time
 
 # Replace 'ws://your_server_domain_or_ip:port' with your WebSocket server URL
-websocket_url = 'ws://localhost:3000/'
+websocket_url = 'ws://localhost:4000'
 
 def on_message(ws, message):
     print(f"Received message: {message}")
@@ -17,7 +17,8 @@ def on_close(ws, close_status_code, close_msg):
 def on_open(ws):
     print("WebSocket connection opened")
     # Start a new thread for sending chat messages
-    threading.Thread(target=send_chat_messages, args=(ws,)).start()
+    # ws.send_header('Authorization', f'Bearer {jwt_token}')
+#  threading.Thread(target=send_chat_messages, args=(ws,)).start()
 
 def send_chat_messages(ws):
     # Simulate sending chat messages every 3 seconds

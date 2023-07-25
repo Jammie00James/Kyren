@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Client</title>
+</head>
+<body>
+  <script>
+    const websocketURL = 'ws://localhost:3000';
+
+    // Create a WebSocket connection
+    const socket = new WebSocket(websocketURL);
+
+    // Event listener for WebSocket connection opened
+    socket.onopen = () => {
+      console.log('WebSocket connection opened');
+      
+      // Send a test message to the server
+      socket.send('Hello, WebSocket server!');
+    };
+
+    // Event listener for WebSocket messages received
+    socket.onmessage = (event) => {
+      console.log('Received message:', event.data);
+    };
+
+    // Event listener for WebSocket connection closed
+    socket.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    // Event listener for WebSocket errors
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+  </script>
+</body>
+</html>

@@ -38,7 +38,11 @@ const authenticateUser = (req, res, next) => {
 
 const websocketAuth = (socket, next) => {
   try {
-    const token = socket.handshake.auth.token;
+    const headers = socket.request.headers;
+
+  // Retrieve the JWT token from the 'Authorization' header
+    const authHeader = headers['authorization'];
+    const token = authHeader.split(' ')[1]
     if (token) {
       // Verify the token
       jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {

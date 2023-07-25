@@ -6,17 +6,24 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const http = require('http');
-const socketIO = require('socket.io');
 const {websocketAuth} = require('./middlewares/auth');
-const createWebsocket = require('./handlers/websockethandler');
+require('./handlers/websockethandler');
 
 
 
 
 const app = express()
 const server = http.createServer(app)
-const io = socketIO(server)
 
+
+//io.use(websocketAuth);
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use('/auth', require('./routes/auth.route'));
@@ -30,15 +37,19 @@ app.get('/', (req, res) =>{
   res.status(200).send("Hello")
 })
 
-console.log("001")
-createWebsocket(server);
-console.log("005")
-
 app.all('*', (req,res) => {
-    res.status(404).send('Page not Found')
-  })
+  res.status(404).send('Page not Found')
+})
 
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+console.log("001")
+console.log("005")
+
+
+
+
+
